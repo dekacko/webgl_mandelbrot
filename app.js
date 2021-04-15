@@ -114,23 +114,17 @@ const runDemo = (loadedShaders) => {
     // get uniform locations
     //
     var uniforms = {
-        viewportDimensions: gl.getUniformLocation(program, 'viewportDimensions'),
-        _Area: gl.getUniformLocation(program, '_Area'),
-        minI: gl.getUniformLocation(program,'minI'),
-        maxI: gl.getUniformLocation(program,'maxI'),
-        minR: gl.getUniformLocation(program,'minR'),
-        maxR: gl.getUniformLocation(program,'maxR')
+        _vpDimensions: gl.getUniformLocation(program, '_vpDimensions'),
+        _Area: gl.getUniformLocation(program, '_Area')
     }
 
     //
     // set cpu-side variables for all of our shader variables
     //
-    var vpDimensions = [canvas.width, canvas.height];
-    var area = [0.0, 0.0, 4.0, 4.0];
-    var minI = -2.0;
-    var maxI =  2.0;
-    var minR = -2.0;
-    var maxR =  2.0;
+    var vpDimensions = [canvas.width, canvas.height];    
+    var area = [-0.66, 0.0, 0.0, 0.0]; //area(posX, posY, scaleX, scaleY)
+    var scale = 3.0;
+
 
     //
     // create buffers => for fragment shaders we need only fullscreen quad (2 triangles)
@@ -167,18 +161,17 @@ const runDemo = (loadedShaders) => {
     const loop = () => {
         // fps info
         fpsInfo();
+
+        //update shader values
+        updateShader();
         
         //set clear color and clear buffers
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
 
         //set uniforms
-        gl.uniform2fv(uniforms.viewportDimensions, vpDimensions);
+        gl.uniform2fv(uniforms._vpDimensions, vpDimensions);
         gl.uniform4fv(uniforms._Area, area);
-        gl.uniform1f(uniforms.minI, minI);
-        gl.uniform1f(uniforms.maxI, maxI);
-        gl.uniform1f(uniforms.minR, minR);
-        gl.uniform1f(uniforms.maxR, maxR);
 
         //draw polygons
         gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -219,6 +212,21 @@ const runDemo = (loadedShaders) => {
         frames = frames.slice(0,250);
     }
 
+    function updateShader() {
+        var aspect = vpDimensions[0] / vpDimensions[1];
+        var scaleX = scale;
+        var scaleY = scale;
+        
+        if(aspect > 1.0) {
+            scaleY /= aspect;
+        } else {
+            scaleX *= aspect;
+        }
+
+        area[2] = scaleX;
+        area[3] = scaleY;
+    }
+
     function onResizeWindow() {
         if(!canvas) return;
     
@@ -226,49 +234,27 @@ const runDemo = (loadedShaders) => {
         canvas.height = window.innerHeight;
 
         vpDimensions = [canvas.width, canvas.height];
-
-        var oldRealRange = maxR - minR;
-        maxR = (maxI - minI) * (canvas.width / canvas.height) + minR;
-        var newRealRange = maxR - minR;
-
-        minR -= (newRealRange - oldRealRange) / 2;
-        maxR = (maxI - minI) * (canvas.width / canvas.height) + minR;
-        
+       
         gl.viewport(0, 0, canvas.width, canvas.height);
 
         //console.log(`window was resized to ${canvas.width}x${canvas.height}`);
     };
 
     function onZoom(e) {
-        var imaginaryRange = maxI - minI;
-        var newRange;
         if(e.deltaY < 0) {
-            newRange = imaginaryRange * 0.95;
+            scale = scale * 0.95;
         } else {
-            newRange = imaginaryRange * 1.05;
+            scale = scale * 1.05;
         }
-
-        var delta = newRange - imaginaryRange;
-
-        minI -= delta / 2;
-        maxI = minI + newRange;
-
-        onResizeWindow();
     }
 
     function onMouseMove(e) {        
-        if(e.buttons === 1) {
-            //console.log(e);
-            var iRange = maxI - minI;
-            var rRange = maxR - minR;
-
-            var iDelta = (e.movementY / canvas.height) * iRange;
-            var rDelta = (e.movementX / canvas.width) * rRange;
-
-            minI += iDelta;
-            maxI += iDelta;
-            minR -= rDelta;
-            maxR -= rDelta;
+        if(e.buttons === 1) {            
+            //area(posX, posY, scaleX, scaleY)
+            var xDelta = (e.movementX / canvas.width) * area[2];
+            var yDelta = (e.movementY / canvas.height) * area[3];
+            area[0] -= xDelta;
+            area[1] += yDelta;
         }
     }
 };

@@ -8,14 +8,8 @@ precision highp float;
 #define MAX_ITER 1000
 #define AA 3
 
-uniform vec2 viewportDimensions;
+uniform vec2 _vpDimensions;
 uniform vec4 _Area;
-
-uniform float minI;
-uniform float maxI;
-uniform float minR;
-uniform float maxR;
-
 uniform float _time;
 
 //square complex number
@@ -29,7 +23,7 @@ vec2 c_pow2(vec2 c)
 
 void main() {
     float fMAX_ITER = float(MAX_ITER);
-    vec2 uv = gl_FragCoord.xy / viewportDimensions.xy;
+    vec2 uv = gl_FragCoord.xy / _vpDimensions.xy;
 
     vec2 c = _Area.xy + (uv.xy - 0.5 ) * _Area.zw;
     vec2 z;
