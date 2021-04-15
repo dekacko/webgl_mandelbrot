@@ -201,21 +201,14 @@ const runDemo = (loadedShaders) => {
     // utils
     //
     function doubleToDS(n) {
+                
+        ds1 = n*100000000;        
+        ds1 = n > 0.0 ? Math.floor(ds1) : Math.ceil(ds1);        
+        ds1 = ds1 / 100000000;
         
-
+        ds2 = n - ds1;
         
-        ds1 = n*10000000;
-        
-        ds11 = n > 0.0 ? Math.floor(ds1) : Math.ceil(ds1);
-        
-        ds12 = ds11 / 10000000;
-        
-
-
-        ds2 = n - ds12;
-
-        
-        return [ds12, ds2];
+        return [ds1, ds2];
     }
 
     var thisframetime;
@@ -242,15 +235,17 @@ const runDemo = (loadedShaders) => {
     function mandelbrotInfo(){
         document.querySelector('#shaderInfo').innerText = 
         `
-        x   : ${area[0]}\n
-        aRx1: ${areaR[0].toFixed(8)}\n
-        aRx2: ${areaR[1]}\n
-        y   : ${area[1]}\n
-        aRy1: ${areaR[2].toFixed(8)}\n
-        aRy2: ${areaR[3]}\n
-        scl : ${scale}\n
-        aIx : ${areaI[0].toFixed(8)}\n
-        aIy : ${areaI[2].toFixed(8)}\n
+        x   : ${area[0]}
+        aRx1: ${areaR[0].toFixed(8)}
+        aRx2: ${areaR[1]}
+
+        y   : ${area[1]}
+        aRy1: ${areaR[2].toFixed(8)}
+        aRy2: ${areaR[3]}
+
+        scl : ${scale}
+        aIx : ${areaI[0].toFixed(8)}
+        aIy : ${areaI[2].toFixed(8)}
         `;
     }
 
