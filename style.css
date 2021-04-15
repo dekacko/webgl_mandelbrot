@@ -8,16 +8,34 @@ body {
     background-color: rgb(34, 34, 34);
 }
 
-#shaderInfo{
+#sectionInfo{
+    user-select: none;
+    pointer-events: none;    
     color: rgb(231, 225, 215);
-    display: none;
-    align-items: stretch;    
+    display: flex;
+    justify-content: space-between;
     position: absolute;
     top: 0;
     left: 0;    
     width: 100vw;
 }
 
-#shaderInfo p {
+.infoWrapper{    
+    width: 30vw;
     margin: 10px;
 }
+
+.infoContainer { display: none; }
+
+.vsInfoContainer { display: none; }
+
+.fsInfoContainer { display: none; }
+
+input[type=checkbox] {
+    pointer-events: all;
+}
+
+#infoCheckBox:checked ~ .infoContainer { display: block; }
+#vsInfoCheckBox:checked ~ .vsInfoContainer { display: block; }
+#fsInfoCheckBox:checked ~ .fsInfoContainer { display: block; }
+

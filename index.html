@@ -11,9 +11,28 @@
     <canvas id="gl-surface">
         Browser does not support html5
     </canvas>
-    <section id="shaderInfo">        
-        <p id="vs"></p>        
-        <p id="fs"></p>
+    <section id="sectionInfo">
+        <div class='infoWrapper'>
+            <input type="checkbox" id="infoCheckBox">
+            <label for="infoCheckBox"> shaderInfo</label>
+            <div class="infoContainer">
+                <p id="shaderInfo"></p>        
+            </div>
+        </div>
+        <div class='infoWrapper'>
+            <input type="checkbox" id="vsInfoCheckBox">
+            <label for="vsInfoCheckBox"> vertex shader</label>            
+            <div class="vsInfoContainer">                
+                <p id="vsInfo"></p>        
+            </div>
+        </div>
+        <div class='infoWrapper'>
+            <input type="checkbox" id="fsInfoCheckBox">
+            <label for="fsInfoCheckBox"> shaderInfo</label>
+            <div class="fsInfoContainer">                
+                <p id="fsInfo"></p>
+            </div>
+        </div>
         <script src="./app.js"></script>
     </section>
 </body>

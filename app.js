@@ -27,8 +27,8 @@ const init = () => {
     getShaderDataAsync(shaderList)
         .then((data) => {        
             console.log(`${data.length} shaders loaded.`);
-            document.querySelector('#vs').innerText = data[0];
-            document.querySelector('#fs').innerText = data[1];
+            document.querySelector('#vsInfo').innerText = data[0];
+            document.querySelector('#fsInfo').innerText = data[1];
             runDemo({
                 vsText: data[0],
                 fsText: data[1]
@@ -49,7 +49,8 @@ const runDemo = (loadedShaders) => {
     //
     window.onresize = onResizeWindow;
     window.onwheel = onZoom;    
-    window.onmousemove = onMouseMove;
+    canvas.onmousemove = onMouseMove;
+    
 
     //
     // canvas context
@@ -160,10 +161,11 @@ const runDemo = (loadedShaders) => {
     
     const loop = () => {
         // fps info
-        fpsInfo();
+        fpsInfo();        
 
         //update shader values
         updateShader();
+        mandelbrotInfo();
         
         //set clear color and clear buffers
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -212,6 +214,15 @@ const runDemo = (loadedShaders) => {
         frames = frames.slice(0,250);
     }
 
+    function mandelbrotInfo(){
+        document.querySelector('#shaderInfo').innerText = 
+        `
+        x: ${area[0]}\n
+        y: ${area[1]}\n
+        scl: ${scale}
+        `;
+    }
+
     function updateShader() {
         var aspect = vpDimensions[0] / vpDimensions[1];
         var scaleX = scale;
@@ -240,7 +251,7 @@ const runDemo = (loadedShaders) => {
         //console.log(`window was resized to ${canvas.width}x${canvas.height}`);
     };
 
-    function onZoom(e) {
+    function onZoom(e) {        
         if(e.deltaY < 0) {
             scale = scale * 0.95;
         } else {
@@ -248,8 +259,8 @@ const runDemo = (loadedShaders) => {
         }
     }
 
-    function onMouseMove(e) {        
-        if(e.buttons === 1) {            
+    function onMouseMove(e) {                
+        if(e.buttons === 1) {                        
             //area(posX, posY, scaleX, scaleY)
             var xDelta = (e.movementX / canvas.width) * area[2];
             var yDelta = (e.movementY / canvas.height) * area[3];
