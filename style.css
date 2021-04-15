@@ -1,0 +1,23 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    overflow: hidden;
+    background-color: rgb(34, 34, 34);
+}
+
+#shaderInfo{
+    color: rgb(231, 225, 215);
+    display: none;
+    align-items: stretch;    
+    position: absolute;
+    top: 0;
+    left: 0;    
+    width: 100vw;
+}
+
+#shaderInfo p {
+    margin: 10px;
+}
