@@ -21,7 +21,8 @@ const getShaderDataAsync = async (list) => {
 const init = () => {
     const shaderList = [
         './shaders/mandelbrot.vs.glsl',
-        './shaders/mandelbrot.fs.glsl'
+        './shaders/mandelbrotDoublePrecision.fs.glsl'
+        //'./shaders/mandelbrot.fs.glsl'
     ];
     
     getShaderDataAsync(shaderList)
@@ -116,14 +117,18 @@ const runDemo = (loadedShaders) => {
     //
     var uniforms = {
         _vpDimensions: gl.getUniformLocation(program, '_vpDimensions'),
-        _Area: gl.getUniformLocation(program, '_Area')
+        _Area: gl.getUniformLocation(program, '_Area'),
+        _AreaR: gl.getUniformLocation(program, '_AreaR'),
+        _AreaI: gl.getUniformLocation(program, '_AreaI')
     }
 
     //
     // set cpu-side variables for all of our shader variables
     //
     var vpDimensions = [canvas.width, canvas.height];    
-    var area = [-0.66, 0.0, 0.0, 0.0]; //area(posX, posY, scaleX, scaleY)
+    var area =  [-0.6, 0.0, 0.0, 0.0]; //area(posX, posY, scaleX, scaleY)
+    var areaR = [-0.6, 0.0, 0.0, 0.0]; //dsv2(posX, posY)
+    var areaI = [ 0.0, 0.0, 0.0, 0.0]; //dsv2(scaleX, scaleY)
     var scale = 3.0;
 
 
@@ -174,6 +179,8 @@ const runDemo = (loadedShaders) => {
         //set uniforms
         gl.uniform2fv(uniforms._vpDimensions, vpDimensions);
         gl.uniform4fv(uniforms._Area, area);
+        gl.uniform4fv(uniforms._AreaR, areaR);
+        gl.uniform4fv(uniforms._AreaI, areaI);
 
         //draw polygons
         gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -193,6 +200,24 @@ const runDemo = (loadedShaders) => {
     //
     // utils
     //
+    function doubleToDS(n) {
+        
+
+        
+        ds1 = n*10000000;
+        
+        ds11 = n > 0.0 ? Math.floor(ds1) : Math.ceil(ds1);
+        
+        ds12 = ds11 / 10000000;
+        
+
+
+        ds2 = n - ds12;
+
+        
+        return [ds12, ds2];
+    }
+
     var thisframetime;
     var lastframetime = performance.now();
     var dt;
@@ -217,9 +242,15 @@ const runDemo = (loadedShaders) => {
     function mandelbrotInfo(){
         document.querySelector('#shaderInfo').innerText = 
         `
-        x: ${area[0]}\n
-        y: ${area[1]}\n
-        scl: ${scale}
+        x   : ${area[0]}\n
+        aRx1: ${areaR[0].toFixed(8)}\n
+        aRx2: ${areaR[1]}\n
+        y   : ${area[1]}\n
+        aRy1: ${areaR[2].toFixed(8)}\n
+        aRy2: ${areaR[3]}\n
+        scl : ${scale}\n
+        aIx : ${areaI[0].toFixed(8)}\n
+        aIy : ${areaI[2].toFixed(8)}\n
         `;
     }
 
@@ -236,6 +267,16 @@ const runDemo = (loadedShaders) => {
 
         area[2] = scaleX;
         area[3] = scaleY;
+
+        areaR[0] = doubleToDS(area[0])[0];
+        areaR[1] = doubleToDS(area[0])[1];
+        areaR[2] = doubleToDS(area[1])[0];
+        areaR[3] = doubleToDS(area[1])[1];
+
+        areaI[0] = doubleToDS(scaleX)[0];
+        areaI[1] = doubleToDS(scaleX)[1];
+        areaI[2] = doubleToDS(scaleY)[0];
+        areaI[3] = doubleToDS(scaleY)[1];
     }
 
     function onResizeWindow() {
@@ -259,13 +300,24 @@ const runDemo = (loadedShaders) => {
         }
     }
 
-    function onMouseMove(e) {                
+    function onMouseMove(e) {  
+        //console.log(e.buttons);
         if(e.buttons === 1) {                        
             //area(posX, posY, scaleX, scaleY)
             var xDelta = (e.movementX / canvas.width) * area[2];
             var yDelta = (e.movementY / canvas.height) * area[3];
             area[0] -= xDelta;
             area[1] += yDelta;
+        }
+        if(e.buttons === 8) {
+            area[0] =-0.934804635;
+            area[1] = 0.241463652;
+            scale = 0.00039905;
+        }
+        if(e.buttons === 16) {
+            area[0] =-1.016860035;
+            area[1] =-0.323489387;
+            scale = 0.00015514;
         }
     }
 };

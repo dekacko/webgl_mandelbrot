@@ -11,13 +11,13 @@ body {
 #sectionInfo{
     user-select: none;
     pointer-events: none;    
-    color: rgb(231, 225, 215);
+    color: rgb(250, 247, 244);
     display: flex;
     justify-content: space-between;
     position: absolute;
     top: 0;
     left: 0;    
-    width: 100vw;
+    width: 100vw;    
 }
 
 .infoWrapper{    
@@ -32,6 +32,9 @@ body {
 .fsInfoContainer { display: none; }
 
 input[type=checkbox] {
+    font-size: large;
+    width: 1em;
+    height: 1em;
     pointer-events: all;
 }
 
