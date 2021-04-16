@@ -119,7 +119,8 @@ const runDemo = (loadedShaders) => {
         _vpDimensions: gl.getUniformLocation(program, '_vpDimensions'),
         _Area: gl.getUniformLocation(program, '_Area'),
         _AreaR: gl.getUniformLocation(program, '_AreaR'),
-        _AreaI: gl.getUniformLocation(program, '_AreaI')
+        _AreaI: gl.getUniformLocation(program, '_AreaI'),
+        _dsInvResolution: gl.getUniformLocation(program, '_dsInvResolution')
     }
 
     //
@@ -129,6 +130,7 @@ const runDemo = (loadedShaders) => {
     var area =  [-0.6, 0.0, 0.0, 0.0]; //area(posX, posY, scaleX, scaleY)
     var areaR = [-0.6, 0.0, 0.0, 0.0]; //dsv2(posX, posY)
     var areaI = [ 0.0, 0.0, 0.0, 0.0]; //dsv2(scaleX, scaleY)
+    var dsInvResolution = [ 0.0, 0.0, 0.0, 0.0]; //dsv2(1/width, 1/height)
     var scale = 3.0;
 
 
@@ -181,6 +183,7 @@ const runDemo = (loadedShaders) => {
         gl.uniform4fv(uniforms._Area, area);
         gl.uniform4fv(uniforms._AreaR, areaR);
         gl.uniform4fv(uniforms._AreaI, areaI);
+        gl.uniform4fv(uniforms._dsInvResolution, dsInvResolution);
 
         //draw polygons
         gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -235,17 +238,22 @@ const runDemo = (loadedShaders) => {
     function mandelbrotInfo(){
         document.querySelector('#shaderInfo').innerText = 
         `
-        x   : ${area[0]}
-        aRx1: ${areaR[0].toFixed(8)}
-        aRx2: ${areaR[1]}
+            x   : ${area[0]}
+            aRx1: ${areaR[0].toFixed(8)}
+            aRx2: ${areaR[1]}
 
-        y   : ${area[1]}
-        aRy1: ${areaR[2].toFixed(8)}
-        aRy2: ${areaR[3]}
+            y   : ${area[1]}
+            aRy1: ${areaR[2].toFixed(8)}
+            aRy2: ${areaR[3]}
 
-        scl : ${scale}
-        aIx : ${areaI[0].toFixed(8)}
-        aIy : ${areaI[2].toFixed(8)}
+           zoom : ${(1/scale).toFixed(2)}
+            scl : ${scale}
+            aIx : ${areaI[0].toFixed(8)}
+            aIy : ${areaI[2].toFixed(8)}
+
+            res : ${vpDimensions[0]} x ${vpDimensions[1]}
+        invResX1: ${dsInvResolution[0].toFixed(8)}
+        invResY1: ${dsInvResolution[2].toFixed(8)}
         `;
     }
 
@@ -272,6 +280,13 @@ const runDemo = (loadedShaders) => {
         areaI[1] = doubleToDS(scaleX)[1];
         areaI[2] = doubleToDS(scaleY)[0];
         areaI[3] = doubleToDS(scaleY)[1];
+
+        var invResX = 1 / vpDimensions[0];
+        var invRexY = 1 / vpDimensions[1];
+        dsInvResolution[0] = doubleToDS(invResX)[0];
+        dsInvResolution[1] = doubleToDS(invResX)[1];
+        dsInvResolution[2] = doubleToDS(invRexY)[0];
+        dsInvResolution[3] = doubleToDS(invRexY)[1];
     }
 
     function onResizeWindow() {
@@ -305,14 +320,14 @@ const runDemo = (loadedShaders) => {
             area[1] += yDelta;
         }
         if(e.buttons === 8) {
-            area[0] =-0.934804635;
-            area[1] = 0.241463652;
-            scale = 0.00039905;
+            area[0] =-0.934816428;
+            area[1] = 0.241485624;
+            scale = 0.0000027178;
         }
         if(e.buttons === 16) {
-            area[0] =-1.016860035;
-            area[1] =-0.323489387;
-            scale = 0.00015514;
+            area[0] =-0.836276;
+            area[1] = 0.228855;
+            scale = 0.02602319;
         }
     }
 };

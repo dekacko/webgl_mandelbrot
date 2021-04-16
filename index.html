@@ -11,29 +11,35 @@
     <canvas id="gl-surface">
         Browser does not support html5
     </canvas>
-    <section id="sectionInfo">
-        <div class='infoWrapper'>
-            <input type="checkbox" id="infoCheckBox" checked>
-            <label for="infoCheckBox"> shaderInfo</label>
-            <div class="infoContainer">
-                <code id="shaderInfo"></code>        
+    
+    <section class="sectionInfo">        
+        <input type="checkbox" id="invertCheckBox" checked>
+        <label for="invertCheckBox" class='invertCheckBoxLabel'> invert text </label>
+        <div class="sectionInfoContentWrapper">
+            <div class='infoWrapper'>
+                <input type="checkbox" id="infoCheckBox" checked>
+                <label for="infoCheckBox"> shaderInfo </label>
+                
+                <div class="infoContainer">
+                    <code id="shaderInfo"></code>        
+                </div>
+            </div>
+            <div class='infoWrapper'>
+                <input type="checkbox" id="vsInfoCheckBox">
+                <label for="vsInfoCheckBox"> vertex shader</label>            
+                <div class="vsInfoContainer">                
+                    <code id="vsInfo"></code>        
+                </div>
+            </div>
+            <div class='infoWrapper'>
+                <input type="checkbox" id="fsInfoCheckBox">
+                <label for="fsInfoCheckBox"> fragment shader</label>
+                <div class="fsInfoContainer">                
+                    <code id="fsInfo"></code>
+                </div>
             </div>
         </div>
-        <div class='infoWrapper'>
-            <input type="checkbox" id="vsInfoCheckBox">
-            <label for="vsInfoCheckBox"> vertex shader</label>            
-            <div class="vsInfoContainer">                
-                <code id="vsInfo"></code>        
-            </div>
-        </div>
-        <div class='infoWrapper'>
-            <input type="checkbox" id="fsInfoCheckBox">
-            <label for="fsInfoCheckBox"> fragment shader</label>
-            <div class="fsInfoContainer">                
-                <code id="fsInfo"></code>
-            </div>
-        </div>
-        <script src="./app.js"></script>
-    </section>
+</section>
+<script src="./app.js"></script>
 </body>
 </html>

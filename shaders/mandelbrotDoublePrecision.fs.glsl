@@ -5,14 +5,16 @@
 precision highp float;
 
 #define palette(t, a, b, c, d) (a + b*cos(6.2831*(c*t + d)))
-#define MAX_ITER 1000
+#define MAX_ITER 1500
 #define AA 3
-#define RADIUS 2.0
+#define RADIUS 2.
+#define DS_MANDEL 1.
 
 uniform vec2 _vpDimensions;
 uniform vec4 _Area;
 uniform vec4 _AreaR;
 uniform vec4 _AreaI;
+uniform vec4 _dsInvResolution;
 
 uniform float _time;
 
@@ -39,6 +41,22 @@ vec2 ds_add(vec2 dsa, vec2 dsb)
     t1 = dsa.x + dsb.x;
     e = t1 - dsa.x;
     t2 = ((dsb.x - e) + (dsa.x - (t1 -e))) + dsa.y + dsb.y;
+
+    dsc.x = t1 + t2;
+    dsc.y = t2 - (dsc.x - t1);
+
+    return dsc;
+}
+
+//ds subrtaction
+vec2 ds_sub(vec2 dsa, vec2 dsb)
+{
+    vec2 dsc;
+    float t1, t2, e;
+    
+    t1 = dsa.x + dsb.x;
+    e = t1 - dsa.x;
+    t2 = ((- dsb.x - e) + (dsa.x - (t1 -e))) + dsa.y - dsb.y;
 
     dsc.x = t1 + t2;
     dsc.y = t2 - (dsc.x - t1);
@@ -124,7 +142,7 @@ vec4 dsv2_cpow2(vec4 c)
 {
     vec2 ds_2 = ds_set(2.0);
 
-    vec2 dsv2x = ds_mul(c.xy, c.xy) - ds_mul(c.zw, c.zw);
+    vec2 dsv2x = ds_sub(ds_mul(c.xy, c.xy), ds_mul(c.zw, c.zw));
     vec2 dsv2y = ds_mul(ds_2, ds_mul(c.xy, c.zw));
     return vec4(dsv2x, dsv2y);
 }
@@ -153,39 +171,66 @@ float mandelbrot(vec2 uv) {
     return 0.0;
 }
 
+//mandelbrot ds
 float dsMandelbrot(vec2 _uv) {
     vec2 ds_radius2 = ds_set(RADIUS * RADIUS);
 
     vec2 uv_mov = _uv.xy - 0.5;
     vec4 uv = dsv2_set(uv_mov.x, uv_mov.y);
-    
 
-    
-    vec4 c = dsv2_add(_AreaR, dsv2_mul(uv, _AreaI));
-
-    //vec2 c2 = _Area.xy + (_uv.xy - 0.5 ) * _Area.zw;
-    //vec4 c = dsv2_set(c2.x, c2.y);    
+    vec4 c = dsv2_add(_AreaR, dsv2_mul(uv, _AreaI));  
 
     vec4 z = c;
     for(int i = 0; i < MAX_ITER; i++) {        
         z = dsv2_add(dsv2_cpow2(z), c); // c_pow2(z) + c;
         if( ds_compare(ds_add(ds_mul(z.xy,z.xy),ds_mul(z.zw,z.zw)), ds_radius2) > 0.0) {
-            //return (float(i) + 1. - log(log(length(z)))/log(2.));	// http://linas.org/art-gallery/escape/escape.html
-            return float(i);
+            return (float(i) + 1. - log(log(length(z)))/log(2.));	// http://linas.org/art-gallery/escape/escape.html
+            //return float(i);
         };
     }
     return 0.0;
 }
 
-void main() {       
-    vec2 uv = gl_FragCoord.xy / _vpDimensions.xy;
-    float n = dsMandelbrot(uv);
+//mandelbrot ds - ds_uv input
+float dsMandelbrot(vec4 _uv) {
+    vec2 ds_radius2 = ds_set(RADIUS * RADIUS);
 
-    /* gl_FragColor = vec4(
+    //vec2 uv_mov = _uv.xy - 0.5;
+    //vec4 uv = dsv2_set(uv_mov.x, uv_mov.y);
+    vec4 uv = dsv2_add(_uv, dsv2_set(-0.5,-0.5));
+
+    vec4 c = dsv2_add(_AreaR, dsv2_mul(uv, _AreaI));  
+
+    vec4 z = c;
+    for(int i = 0; i < MAX_ITER; i++) {        
+        z = dsv2_add(dsv2_cpow2(z), c); // c_pow2(z) + c;
+        if( ds_compare(ds_add(ds_mul(z.xy,z.xy),ds_mul(z.zw,z.zw)), ds_radius2) > 0.0) {
+            return (float(i) + 1. - log(log(length(vec2(z.x, z.z))))/log(2.));	// http://linas.org/art-gallery/escape/escape.html
+            //return float(i);
+        };
+    }
+    return 0.0;
+}
+
+void main() {     
+    float n;  
+    if(DS_MANDEL < 1.) {
+        vec2 uv = gl_FragCoord.xy / _vpDimensions.xy;
+        n = mandelbrot(uv);
+        //float n = dsMandelbrot(uv);
+    }else{
+        vec4 ds_FragCoord = dsv2_set(gl_FragCoord.x, gl_FragCoord.y);
+        vec4 ds_uv = dsv2_mul(ds_FragCoord, _dsInvResolution);
+        n = dsMandelbrot(ds_uv);
+    }
+
+    /* vec3 c = vec3(
         (-cos(0.025*n)+1.0)/2.0, 
 		(-cos(0.08*n)+1.0)/2.0, 
-		(-cos(0.12*n)+1.0)/2.0, 
-		1.0); */
+		(-cos(0.12*n)+1.0)/2.0
+        );
+    gl_FragColor = vec4(c, 1.0); */
+
     float c = pow(n, 1.7) / float(MAX_ITER);
     gl_FragColor = vec4(vec3(c), 1.0);
     //gl_FragColor = vec4(uv.x , uv.y, 0.0, 1.0);
